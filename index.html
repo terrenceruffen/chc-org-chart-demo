@@ -178,6 +178,7 @@ DEMO ONLY — CELEBRITY NAMES ARE FICTIONAL PLACEHOLDERS — NOT ACTUAL CHC EMPL
         <option value="Active">Active</option>
         <option value="Leave of Absence">Leave of Absence</option>
         <option value="Leave With Pay">Leave With Pay</option>
+        <option value="Open">Open / Vacant</option>
         
       </select>
     </div>
@@ -190,7 +191,7 @@ DEMO ONLY — CELEBRITY NAMES ARE FICTIONAL PLACEHOLDERS — NOT ACTUAL CHC EMPL
         </div>
         <div class="termination-box">
           <h4>Employment separation</h4>
-          <div class="small">Terminate this employee and optionally keep the position on the org chart as an open role.</div>
+          <div class="small">Terminate this employee and optionally keep the same position in the org chart as VACANT. Direct reports stay attached to the position.</div>
           <label class="inline-check"><input type="checkbox" id="createVacancyOnTerminate" checked> Keep this position as an open role</label>
           <button type="button" class="danger" id="terminateEmployee">Terminate employee</button>
           <button type="button" class="danger" id="confirmTerminateEmployee" hidden>Yes, confirm termination</button>
@@ -266,6 +267,7 @@ DEMO ONLY — CELEBRITY NAMES ARE FICTIONAL PLACEHOLDERS — NOT ACTUAL CHC EMPL
         <option value="Active" selected>Active</option>
         <option value="Leave of Absence">Leave of Absence</option>
         <option value="Leave With Pay">Leave With Pay</option>
+        <option value="Open">Open / Vacant</option>
         
       </select>
     </div>
@@ -471,7 +473,7 @@ function cardHtml(p, depth) {
   );
   const visible=searchContext ? true : matchesFilter(p);
   return `<div class="node-wrap depth-${Math.min(depth,6)}" data-id="${esc(p.uid)}">
-    <div class="card ${p.uid===selectedId?'selected':''} ${visible?'':'filtered'} ${p.uid===searchHitId?'search-hit':''} ${searchContext?'search-context':''} ${(searchHitId && p.managerId===browseFocusId)?'browse-choice':''}" tabindex="0" role="button" aria-label="Select ${esc(p.name)}">
+    <div class="card ${norm(p.status)==='open'?'vacancy':''} ${p.uid===selectedId?'selected':''} ${visible?'':'filtered'} ${p.uid===searchHitId?'search-hit':''} ${searchContext?'search-context':''} ${(searchHitId && p.managerId===browseFocusId)?'browse-choice':''}" tabindex="0" role="button" aria-label="Select ${esc(p.name)}">
       <div class="name">${esc(p.name)}</div>
       <div class="title">${esc(p.title || 'No title')}</div>
       <div class="meta">${esc(p.department || 'No department')}${p.location?' • '+esc(p.location):''}</div>
@@ -803,27 +805,43 @@ function terminateSelectedEmployee(makeVacancy) {
   if(!p || norm(p.status)==='terminated') return;
 
   if(makeVacancy) {
-    // Avoid duplicate vacancy if the action gets triggered twice.
-    const exists=openJobs.some(j=>j.formerEmployeeId===p.uid);
-    if(!exists) {
-      openJobs.push({
-        id:'open-'+Date.now(),
-        formerEmployeeId:p.uid,
-        title:p.title || 'Open Position',
-        department:p.department || '',
-        managerId:p.managerId || null,
-        location:p.location || '',
-        source:'termination'
-      });
-    }
+    /*
+      IMPORTANT ORG-CHART RULE:
+      The position stays in the hierarchy even when the employee leaves.
+      We keep the SAME uid so every direct report remains attached to the
+      same manager position. The departing employee is copied to the
+      terminated-history area, while this position becomes VACANT.
+    */
+    const departingEmployee = {
+      ...p,
+      uid: `terminated-${p.uid}-${Date.now()}`,
+      managerId: null,
+      status: 'Terminated',
+      terminatedFromPositionUid: p.uid
+    };
+    people.push(departingEmployee);
+
+    // Turn the existing node into the vacancy. Do NOT change its uid.
+    p.name='VACANT';
+    p.status='Open';
+    p.email='';
+    p.pronouns='';
+    p.trinetId='';
+
+    // Direct reports keep managerId === p.uid, so the team stays intact.
+  } else {
+    /*
+      If the position itself is being removed, move direct reports one
+      level up instead of orphaning them at the top of the org chart.
+    */
+    const nextManagerId=p.managerId || null;
+    people.forEach(emp=>{
+      if(emp.managerId===p.uid) emp.managerId=nextManagerId;
+    });
+
+    p.status='Terminated';
   }
 
-  // Anyone who reported to the terminated employee now needs reassignment.
-  people.forEach(emp=>{
-    if(emp.managerId===p.uid) emp.managerId=null;
-  });
-
-  p.status='Terminated';
   selectedId=null;
   $('terminationPrompt').hidden=true;
   $('terminateEmployee').hidden=false;
