@@ -159,8 +159,10 @@ DEMO ONLY — CELEBRITY NAMES ARE FICTIONAL PLACEHOLDERS — NOT ACTUAL CHC EMPL
       <select id="rootSelect"></select>
       <div class="btnrow">
         <button type="button" id="expandAll">Expand all</button>
+        <button type="button" id="focusSelected">Focus branch</button>
         <button type="button" id="clearFilters">Clear filters</button>
       </div>
+      <div class="small">Select any employee, then choose Focus branch. No editing unlock required.</div>
     </div>
 
     <div class="section admin-only">
@@ -187,7 +189,6 @@ DEMO ONLY — CELEBRITY NAMES ARE FICTIONAL PLACEHOLDERS — NOT ACTUAL CHC EMPL
         <label for="ePronouns">Pronouns</label><input id="ePronouns">
         <div class="btnrow">
           <button class="primary" type="submit">Save changes</button>
-          <button type="button" id="focusSelected">Focus branch</button>
         </div>
         <div class="termination-box">
           <h4>Employment separation</h4>
@@ -540,9 +541,16 @@ function renderNode(p, depth=0) {
       render();
       return;
     }
-    if(!readOnly) choose();
+    // Selection is always allowed, even in read-only mode.
+    // Locking protects edits; it should not block navigation tools like Focus branch.
+    choose();
   });
-  card.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ') && !readOnly){e.preventDefault();choose();}});
+  card.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){
+      e.preventDefault();
+      choose();
+    }
+  });
   const kids=sortKids(childrenOf(p.uid));
   const activeFilters=$('deptFilter').value||$('statusFilter').value||$('locFilter').value;
   const chain = searchHitId ? ancestorIds(searchHitId) : new Set();
