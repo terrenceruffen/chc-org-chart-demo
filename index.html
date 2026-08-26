@@ -526,35 +526,49 @@ function renderNode(p, depth=0) {
   node.innerHTML=cardHtml(p,depth).replace(/^<div class="node-wrap[^>]*>|<\/div>$/g,'');
   const card=node.querySelector('.card');
   const choose=()=>selectEmployee(p.uid);
+  let cardClickTimer=null;
+
   card.addEventListener('click',e=>{
     if(childrenOf(p.uid).length && e.target.closest('.branch-toggle')) {
       e.stopPropagation();
+      if(cardClickTimer) clearTimeout(cardClickTimer);
       collapsed.has(p.uid)?collapsed.delete(p.uid):collapsed.add(p.uid);
-      render(); return;
-    }
-    if(searchHitId && p.uid !== browseFocusId && p.managerId===browseFocusId) {
-      browseFocusId = p.uid;
-      searchHitId = browseFocusId;
-      collapsed.delete(browseFocusId);
-      childrenOf(browseFocusId).forEach(c=>{ if(childrenOf(c.uid).length) collapsed.add(c.uid); });
       render();
       return;
     }
-    // Selection is always allowed, even in read-only mode.
-    // Locking protects edits; it should not block navigation tools like Focus branch.
-    choose();
+
+    // Delay the single-click action very slightly so a second click can
+    // become a true double-click before the card is re-rendered.
+    if(cardClickTimer) clearTimeout(cardClickTimer);
+    cardClickTimer=setTimeout(()=>{
+      if(searchHitId && p.uid !== browseFocusId && p.managerId===browseFocusId) {
+        browseFocusId = p.uid;
+        searchHitId = browseFocusId;
+        collapsed.delete(browseFocusId);
+        childrenOf(browseFocusId).forEach(c=>{ if(childrenOf(c.uid).length) collapsed.add(c.uid); });
+        render();
+        return;
+      }
+      choose();
+    },260);
   });
+
+  card.addEventListener('dblclick',e=>{
+    if(e.target.closest('.branch-toggle')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(cardClickTimer) {
+      clearTimeout(cardClickTimer);
+      cardClickTimer=null;
+    }
+    focusBranch(p.uid);
+  });
+
   card.addEventListener('keydown',e=>{
     if(e.key==='Enter'||e.key===' '){
       e.preventDefault();
       choose();
     }
-  });
-  card.addEventListener('dblclick',e=>{
-    if(e.target.closest('.branch-toggle')) return;
-    e.preventDefault();
-    e.stopPropagation();
-    focusBranch(p.uid);
   });
   const kids=sortKids(childrenOf(p.uid));
   const activeFilters=$('deptFilter').value||$('statusFilter').value||$('locFilter').value;
