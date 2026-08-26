@@ -933,7 +933,6 @@ $('cancelTerminateEmployee').addEventListener('click',()=>{
   $('cancelTerminateEmployee').hidden=true;
 });
 
-$('focusSelected').addEventListener('click',()=>{if(selectedId){$('rootSelect').value=selectedId;render();}});
 $('addEmployee').addEventListener('click',()=>{managerOptions($('nManager'),'');$('addDialog').showModal();});
 $('cancelAdd').addEventListener('click',()=>$('addDialog').close());
 $('addForm').addEventListener('submit',e=>{
