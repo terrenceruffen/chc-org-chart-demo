@@ -230,7 +230,10 @@ DEMO ONLY — CELEBRITY NAMES ARE FICTIONAL PLACEHOLDERS — NOT ACTUAL CHC EMPL
       <button type="button" id="zoomOut" aria-label="Zoom out">− Zoom</button>
       <span class="zoom-readout" id="zoomReadout">90%</span>
       <button type="button" id="zoomIn" aria-label="Zoom in">+ Zoom</button>
-      <button type="button" id="zoomReset">Reset</button>
+      <button type="button" id="zoomReset">Reset View</button>
+      <button type="button" id="undoChange" disabled>↶ Undo</button>
+      <button type="button" id="openJobsToggle" aria-pressed="false">Open Jobs: Off</button>
+      <button type="button" id="resetOrg" class="admin-only">Reset Org</button>
       <span class="small" id="saveStatus" aria-live="polite"></span><span class="stat" id="stats"></span>
     </div>
     <div class="canvas" id="canvas"><div class="tree" id="tree"></div></div>
@@ -308,6 +311,34 @@ let theme = 'light';
 let browseFocusId = null;
 let browseOriginSearchId = null;
 let openJobs = [{"region": "NorCal", "site": "Any", "hiringManager": "Michael Jordan", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Senior VP NorCal Programs", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Posted ", "comments": "", "department": "Open Jobs", "location": "Any", "managerId": "e4", "source": "DEMO DATA", "id": "demo-open-001"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Residential Manager", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Posted, Needs Update", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-002"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "New", "priorEmployee": "n/a", "title": "Manager of Case Management Services", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Pending - JD Review", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-003"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Shelter Case Manager", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Posting", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-004"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Shelter Case Manager", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Posting", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-005"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Case Manager (RRH)", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Pending", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-006"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "New", "priorEmployee": "n/a", "title": "Manager of Coordinated Entry (see comment)", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Pending - JD Review", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-007"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Full-time", "schedule": "Full-time", "shift": "Swing", "days": "Thursday-Monday", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-008"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Part-time ", "schedule": "Part-time ", "shift": "Swing", "days": "Friday, Saturday", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-009"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Part-time ", "schedule": "Part-time ", "shift": "Day", "days": "Saturday, Sunday", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-010"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Per Diem(s)", "schedule": "Per Diem(s)", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-011"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "Full-time (+ 1 PT)", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-012"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "Full-time (+ 1 PT)", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-013"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "Full-time (+ 1 PT)", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-014"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "Full-time (+ 1 PT)", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-015"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Tom Brady", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "Full-time (+ 1 PT)", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "00010910491", "source": "DEMO DATA", "id": "demo-open-016"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Doja Cat", "newBackfill": "New", "priorEmployee": "Demo Backfill", "title": "Coordinated Entry Specialist", "employmentClass": "Temp", "schedule": "Full Time", "shift": "", "days": "", "times": "", "status": "?", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "e183", "source": "DEMO DATA", "id": "demo-open-017"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Doja Cat", "newBackfill": "New", "priorEmployee": "n/a", "title": "(Peer) Coordinated Entry Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "", "days": "", "times": "", "status": "?", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "e183", "source": "DEMO DATA", "id": "demo-open-018"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Doja Cat", "newBackfill": "New", "priorEmployee": "n/a", "title": "(Peer) Coordinated Entry Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "", "days": "", "times": "", "status": "?", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "e183", "source": "DEMO DATA", "id": "demo-open-019"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Christian McCaffrey", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Employment Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Posted", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": "e145", "source": "DEMO DATA", "id": "demo-open-020"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Demo Hiring Manager", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Cook", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Sunday - Thursday", "times": "10am - 6:30pm", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "DEMO DATA", "id": "demo-open-021"}, {"region": "SoCal", "site": "Los Angeles", "hiringManager": "Missy Elliott", "newBackfill": "Christenson", "priorEmployee": "Demo Backfill", "title": "Cook", "employmentClass": "Temp", "schedule": "", "shift": "", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Los Angeles", "managerId": "e36", "source": "DEMO DATA", "id": "demo-open-022"}, {"region": "NorCal", "site": "Santa Clara", "hiringManager": "Christian McCaffrey", "newBackfill": "New", "priorEmployee": "n/a", "title": "Employment Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Posted", "comments": "", "department": "Open Jobs", "location": "Santa Clara", "managerId": "e145", "source": "DEMO DATA", "id": "demo-open-023"}, {"region": "NorCal", "site": "Santa Clara", "hiringManager": "Jazmine Sullivan", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Tuesday - Saturday", "times": "7:30-4pm", "status": "Posted", "comments": "", "department": "Open Jobs", "location": "Santa Clara", "managerId": "e188", "source": "DEMO DATA", "id": "demo-open-024"}, {"region": "NorCal", "site": "Santa Clara", "hiringManager": "Jazmine Sullivan", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Sunday - Thursday", "times": "7:30-4pm", "status": "Posted", "comments": "", "department": "Open Jobs", "location": "Santa Clara", "managerId": "e188", "source": "DEMO DATA", "id": "demo-open-025"}, {"region": "NorCal", "site": "Santa Clara", "hiringManager": "Jazmine Sullivan", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Overnight", "days": "Sunday - Thursday", "times": "11:30pm - 8am", "status": "Hiring in Progress", "comments": "", "department": "Open Jobs", "location": "Santa Clara", "managerId": "e188", "source": "DEMO DATA", "id": "demo-open-026"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Myles Garrett", "newBackfill": "New", "priorEmployee": "n/a", "title": "Residential Manager", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Sun-Thurs / Tues-Sat", "times": "7am - 4pm OR 10am - 7pm", "status": "pending JD review", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": "e147", "source": "DEMO DATA", "id": "demo-open-027"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Myles Garrett", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Swing", "days": "Wednesday - Sunday", "times": "3:30pm - 12am", "status": "", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": "e147", "source": "DEMO DATA", "id": "demo-open-028"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Myles Garrett", "newBackfill": "New", "priorEmployee": "Demo Backfill", "title": "Youth Engagement", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day Shift", "days": "Tuesday - Saturday", "times": "7:30am - 4pm", "status": "Hiring in Progress", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": "e147", "source": "DEMO DATA", "id": "demo-open-029"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Myles Garrett", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist", "employmentClass": "Temp", "schedule": "Part-time ", "shift": "Overnight", "days": "Tuesday, Thursday, Fridays", "times": "11:30pm - 8am", "status": "", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": "e147", "source": "DEMO DATA", "id": "demo-open-030"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Myles Garrett", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist", "employmentClass": "Temp", "schedule": "Full Time", "shift": "Day", "days": "Wed- Sun OR Thurs - Mon", "times": "7:30am - 4pm", "status": "", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": "e147", "source": "DEMO DATA", "id": "demo-open-031"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Myles Garrett", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Wed - Sun OR Thurs-Monday", "times": "7:30am - 4pm", "status": "wish list", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": "e147", "source": "DEMO DATA", "id": "demo-open-032"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Myles Garrett", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Swing", "days": "Wed - Sun OR Thurs-Monday", "times": "3:30pm - 12am", "status": "wish list", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": "e147", "source": "DEMO DATA", "id": "demo-open-033"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Myles Garrett", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Part-time ", "shift": "Overnight", "days": "Monday, Wednesday, Friday", "times": "11:30pm - 8am", "status": "wish list", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": "e147", "source": "DEMO DATA", "id": "demo-open-034"}, {"region": "SoCal", "site": "HDT", "hiringManager": "Charles Barkley", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Overnight", "days": "??", "times": "", "status": "Posted", "comments": "", "department": "Open Jobs", "location": "HDT", "managerId": "e117", "source": "DEMO DATA", "id": "demo-open-035"}, {"region": "SoCal", "site": "HDT", "hiringManager": "Charles Barkley", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full-Time", "shift": "Overnight", "days": "??", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "HDT", "managerId": "e117", "source": "DEMO DATA", "id": "demo-open-036"}, {"region": "SoCal", "site": "HDT", "hiringManager": "Charles Barkley", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full-Time", "shift": "Overnight", "days": "??", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "HDT", "managerId": "e117", "source": "DEMO DATA", "id": "demo-open-037"}, {"region": "SoCal", "site": "HDT", "hiringManager": "Dave Chappelle", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Director of Community Housing & Alumni Relations", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Mon - Friday", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "HDT", "managerId": "e59", "source": "DEMO DATA", "id": "demo-open-038"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Tessa Thompson", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Residential Manager", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day / Swing", "days": "Tuesday-Saturday", "times": "Tues-Thurs (7:30AM-4PM) Fri & Sat (1pm-9pm)", "status": "Archived will repost", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e79", "source": "DEMO DATA", "id": "demo-open-039"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Tessa Thompson", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Residential Manager", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Overnight", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e79", "source": "DEMO DATA", "id": "demo-open-040"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Tessa Thompson", "newBackfill": "Backfill", "priorEmployee": "", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "", "shift": "", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e79", "source": "DEMO DATA", "id": "demo-open-041"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Tessa Thompson", "newBackfill": "Backfill", "priorEmployee": "", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "", "shift": "", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e79", "source": "DEMO DATA", "id": "demo-open-042"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Tessa Thompson", "newBackfill": "Backfill", "priorEmployee": "", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "", "shift": "", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e79", "source": "DEMO DATA", "id": "demo-open-043"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Tessa Thompson", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "Regular", "schedule": "??", "shift": "??", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e79", "source": "DEMO DATA", "id": "demo-open-044"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Tessa Thompson", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "Regular", "schedule": "??", "shift": "??", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e79", "source": "DEMO DATA", "id": "demo-open-045"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Tessa Thompson", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e79", "source": "DEMO DATA", "id": "demo-open-046"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Tessa Thompson", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e79", "source": "DEMO DATA", "id": "demo-open-047"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Tessa Thompson", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e79", "source": "DEMO DATA", "id": "demo-open-048"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Tessa Thompson", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e79", "source": "DEMO DATA", "id": "demo-open-049"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Chris Tucker", "newBackfill": "?", "priorEmployee": "", "title": "Case Manager", "employmentClass": "Regular ", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "Program - Case Management Services", "source": "DEMO DATA", "id": "demo-open-050"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Chris Tucker", "newBackfill": "?", "priorEmployee": "", "title": "HT Case Manager", "employmentClass": "Regular ", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "Program - Case Management Services", "source": "DEMO DATA", "id": "demo-open-051"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Chris Tucker", "newBackfill": "", "priorEmployee": "Demo Backfill", "title": "Case Manager", "employmentClass": "Temp", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "Program - Case Management Services", "source": "DEMO DATA", "id": "demo-open-052"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Chris Tucker", "newBackfill": "", "priorEmployee": "Demo Backfill", "title": "Case Manager", "employmentClass": "Temp", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "Program - Case Management Services", "source": "DEMO DATA", "id": "demo-open-053"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Missy Elliott", "newBackfill": "New", "priorEmployee": "n/a", "title": "Housekeeper", "employmentClass": "Regular ", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e36", "source": "DEMO DATA", "id": "demo-open-054"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Missy Elliott", "newBackfill": "New", "priorEmployee": "n/a", "title": "Maintenance Technician", "employmentClass": "Regular ", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e36", "source": "DEMO DATA", "id": "demo-open-055"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Bryan Cranston", "newBackfill": "New", "priorEmployee": "n/a", "title": "Career Coach", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e73", "source": "DEMO DATA", "id": "demo-open-056"}, {"region": "SoCal", "site": "Anaheim", "hiringManager": "Anthony Davis", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Anaheim", "managerId": "e128", "source": "DEMO DATA", "id": "demo-open-057"}, {"region": "SoCal", "site": "Anaheim", "hiringManager": "Anthony Davis", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Engagement Specialist", "employmentClass": "Regular ", "schedule": "Full Time", "shift": "Overnight", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Anaheim", "managerId": "e128", "source": "DEMO DATA", "id": "demo-open-058"}, {"region": "SoCal", "site": "Anaheim", "hiringManager": "Anthony Davis", "newBackfill": "Backfill", "priorEmployee": "", "title": "Youth Engagement Specialist", "employmentClass": "", "schedule": "", "shift": "Mae", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Anaheim", "managerId": "e128", "source": "DEMO DATA", "id": "demo-open-059"}, {"region": "SoCal", "site": "Anaheim", "hiringManager": "Anthony Davis", "newBackfill": "Backfill", "priorEmployee": "", "title": "Youth Engagement Specialist", "employmentClass": "", "schedule": "", "shift": "Mae", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Anaheim", "managerId": "e128", "source": "DEMO DATA", "id": "demo-open-060"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Bryan Cranston", "newBackfill": "Backfill", "priorEmployee": "Demo Backfill", "title": "Youth Outreach Advocate", "employmentClass": "Temp", "schedule": "   ", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e73", "source": "DEMO DATA", "id": "demo-open-061"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Bryan Cranston", "newBackfill": "New", "priorEmployee": "n/a", "title": "Career Coach", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Mon-Friday", "times": "8:45am - 5:15pm", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e73", "source": "DEMO DATA", "id": "demo-open-062"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Regina King / Mahershala Ali", "newBackfill": "New", "priorEmployee": "n/a", "title": "HR Generalist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Mon-Friday", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": "e21", "source": "DEMO DATA", "id": "demo-open-063"}];
+
+const DEFAULT_PEOPLE = JSON.parse(JSON.stringify(people));
+const DEFAULT_OPEN_JOBS = JSON.parse(JSON.stringify(openJobs));
+
+let undoStack = [];
+let lastSavedSnapshot = null;
+let showOpenJobs = false;
+
+function cloneState(state) {
+  return JSON.parse(JSON.stringify(state));
+}
+function currentState() {
+  return {employees: people, openJobs};
+}
+function updateUndoButton() {
+  const btn = $('undoChange');
+  if(btn) btn.disabled = undoStack.length === 0;
+}
+function writeCurrentStateToStorage(message='Saved in this browser') {
+  localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify({
+    employees: people,
+    openJobs,
+    updatedAt: new Date().toISOString()
+  }));
+  lastSavedSnapshot = cloneState(currentState());
+  updateUndoButton();
+  setSaveStatus(message);
+}
 let searchMode = false;
 let searchHitId = null;
 
@@ -333,13 +364,19 @@ async function loadServerState(){
       const state = JSON.parse(saved);
       if(Array.isArray(state.employees)) people = state.employees;
       if(Array.isArray(state.openJobs)) openJobs = state.openJobs;
+      lastSavedSnapshot = cloneState(currentState());
+      updateUndoButton();
       setSaveStatus('Saved demo data loaded');
       return true;
     }
+    lastSavedSnapshot = cloneState(currentState());
+    updateUndoButton();
     setSaveStatus('Demo ready');
     return false;
   }catch(err){
     console.error(err);
+    lastSavedSnapshot = cloneState(currentState());
+    updateUndoButton();
     setSaveStatus('Could not load saved demo data',true);
     return false;
   }
@@ -349,12 +386,12 @@ async function saveServerState(){
   if(readOnly) return;
   setSaveStatus('Saving…');
   try{
-    localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify({
-      employees: people,
-      openJobs,
-      updatedAt: new Date().toISOString()
-    }));
-    setSaveStatus('Saved in this browser');
+    const now = cloneState(currentState());
+    if(lastSavedSnapshot && JSON.stringify(now) !== JSON.stringify(lastSavedSnapshot)) {
+      undoStack.push(cloneState(lastSavedSnapshot));
+      if(undoStack.length > 25) undoStack.shift();
+    }
+    writeCurrentStateToStorage('Saved in this browser');
   }catch(err){
     console.error(err);
     setSaveStatus('Save failed',true);
@@ -395,7 +432,7 @@ function renderOpenJobs() {
   const box=$('openJobsList');
   const spreadsheetJobs=openJobs.filter(j=>j.source==='2026.08.19 - CHC Staff List - Open Positions');
   const manualJobs=openJobs.filter(j=>j.source!=='2026.08.19 - CHC Staff List - Open Positions');
-  box.innerHTML=`<div class="small"><strong>${spreadsheetJobs.length}</strong> openings loaded from the staff-list spreadsheet.${manualJobs.length?`<br><strong>${manualJobs.length}</strong> manually added opening${manualJobs.length===1?'':'s'}.`:''}<br>Select <strong>Open Jobs</strong> under Department to view them.</div>`;
+  box.innerHTML=`<div class="small"><strong>${spreadsheetJobs.length}</strong> openings loaded from the staff-list spreadsheet.${manualJobs.length?`<br><strong>${manualJobs.length}</strong> manually added opening${manualJobs.length===1?'':'s'}.`:''}<br>Use the <strong>Open Jobs</strong> toggle at the top to show or hide vacancy cards in the org chart. You can also select <strong>Open Jobs</strong> under Department for the full openings view.</div>`;
 }
 
 function uniq(field) {
@@ -666,43 +703,30 @@ function render() {
   if(!rs.length) tree.innerHTML='<div class="empty">No employees match the current filters.</div>';
   else rs.forEach(p=>tree.appendChild(renderNode(p,0)));
 
-  // Open positions appear as chart nodes under their selected manager when that branch is visible.
-  const visibleIds = new Set([...tree.querySelectorAll('.node-wrap[data-id]')].map(n=>n.dataset.id));
-  openJobs.forEach(j=>{
-    if(!j.managerId || !visibleIds.has(j.managerId)) return;
-    const managerNode = tree.querySelector(`.node-wrap[data-id="${CSS.escape(j.managerId)}"]`);
-    if(!managerNode) return;
-    let holder = managerNode.querySelector(':scope > .children');
-    if(!holder) {
-      holder=document.createElement('div'); holder.className='children'; managerNode.appendChild(holder);
-    }
-    const child=document.createElement('div'); child.className='child';
-    child.innerHTML=`<div class="node-wrap"><div class="card open-job"><div class="name">OPEN: ${esc(j.title)}</div><div class="title">${esc(j.department||'Open position')}</div><div class="meta">${esc(j.location||'')}</div></div></div>`;
-    holder.appendChild(child);
-  });
-
-  // Show open jobs as vacancy cards beneath their manager whenever that manager is visible.
-  const visibleManagerIds = new Set([...tree.querySelectorAll('.node-wrap[data-id]')].map(n=>n.dataset.id));
-  openJobs.forEach(j=>{
-    if(!j.managerId || !visibleManagerIds.has(j.managerId)) return;
-    const managerNode=tree.querySelector(`.node-wrap[data-id="${CSS.escape(j.managerId)}"]`);
-    if(!managerNode) return;
-    let holder=managerNode.querySelector(':scope > .children');
-    if(!holder) {
-      holder=document.createElement('div');
-      holder.className='children';
-      managerNode.appendChild(holder);
-    }
-    const child=document.createElement('div');
-    child.className='child';
-    child.innerHTML=`<div class="node-wrap"><div class="card vacancy">
-      <div class="name">OPEN: ${esc(j.title||'Open Position')}</div>
-      <div class="title">${esc(j.department||'')}</div>
-      <div class="meta">${esc(j.location||'')}</div>
-      <span class="badge">Open role</span>
-    </div></div>`;
-    holder.appendChild(child);
-  });
+  // Open jobs are hidden by default. Turn them on only when the user asks to see them.
+  if(showOpenJobs) {
+    const visibleManagerIds = new Set([...tree.querySelectorAll('.node-wrap[data-id]')].map(n=>n.dataset.id));
+    openJobs.forEach(j=>{
+      if(!j.managerId || !visibleManagerIds.has(j.managerId)) return;
+      const managerNode=tree.querySelector(`.node-wrap[data-id="${CSS.escape(j.managerId)}"]`);
+      if(!managerNode) return;
+      let holder=managerNode.querySelector(':scope > .children');
+      if(!holder) {
+        holder=document.createElement('div');
+        holder.className='children';
+        managerNode.appendChild(holder);
+      }
+      const child=document.createElement('div');
+      child.className='child';
+      child.innerHTML=`<div class="node-wrap"><div class="card vacancy">
+        <div class="name">OPEN: ${esc(j.title||'Open Position')}</div>
+        <div class="title">${esc(j.department||'')}</div>
+        <div class="meta">${esc(j.location||'')}</div>
+        <span class="badge">Open role</span>
+      </div></div>`;
+      holder.appendChild(child);
+    });
+  }
 
   // Employees with a missing manager record go to a red exception area at the bottom.
   const bad = people.filter(directManagerMissing);
@@ -797,6 +821,7 @@ $('editForm').addEventListener('submit',e=>{
   p.status=requestedStatus;
   refreshControls();
   selectEmployee(p.uid);
+  saveServerState();
 });
 
 
@@ -918,7 +943,71 @@ $('clearFilters').addEventListener('click',()=>{
 $('expandAll').addEventListener('click',()=>{ if(collapsed.size){collapsed.clear();$('expandAll').textContent='Collapse all';} else {people.forEach(p=>{if(childrenOf(p.uid).length)collapsed.add(p.uid)});$('expandAll').textContent='Expand all';} render(); });
 $('zoomOut').addEventListener('click',()=>{zoom=Math.max(.4,+(zoom-.1).toFixed(2));render();});
 $('zoomIn').addEventListener('click',()=>{zoom=Math.min(1.5,+(zoom+.1).toFixed(2));render();});
-$('zoomReset').addEventListener('click',()=>{zoom=.9;render();});
+$('zoomReset').addEventListener('click',()=>{
+  zoom=.9;
+  $('search').value='';
+  $('deptFilter').value='';
+  $('statusFilter').value='';
+  $('locFilter').value='';
+  $('rootSelect').value='';
+  browseFocusId=null;
+  browseOriginSearchId=null;
+  searchHitId=null;
+  collapsed = new Set(people.filter(p=>childrenOf(p.uid).length).map(p=>p.uid));
+  render();
+});
+
+$('undoChange').addEventListener('click',()=>{
+  if(!undoStack.length) return;
+  const prior = undoStack.pop();
+  people = cloneState(prior.employees || []);
+  openJobs = cloneState(prior.openJobs || []);
+  selectedId=null;
+  $('editForm').hidden=true;
+  $('noSelection').hidden=false;
+  refreshControls();
+  collapsed = new Set(people.filter(p=>childrenOf(p.uid).length).map(p=>p.uid));
+  try {
+    writeCurrentStateToStorage('Last change undone');
+  } catch(err) {
+    console.error(err);
+    setSaveStatus('Undo save failed',true);
+  }
+  render();
+});
+
+$('openJobsToggle').addEventListener('click',()=>{
+  showOpenJobs = !showOpenJobs;
+  $('openJobsToggle').textContent = `Open Jobs: ${showOpenJobs ? 'On' : 'Off'}`;
+  $('openJobsToggle').setAttribute('aria-pressed', showOpenJobs ? 'true' : 'false');
+  render();
+});
+
+$('resetOrg').addEventListener('click',()=>{
+  if(!confirm('Reset the entire org chart back to the original demo data? You can still use Undo immediately afterward.')) return;
+  people = cloneState(DEFAULT_PEOPLE);
+  openJobs = cloneState(DEFAULT_OPEN_JOBS);
+  selectedId=null;
+  showOpenJobs=false;
+  $('openJobsToggle').textContent='Open Jobs: Off';
+  $('openJobsToggle').setAttribute('aria-pressed','false');
+  $('search').value='';
+  $('deptFilter').value='';
+  $('statusFilter').value='';
+  $('locFilter').value='';
+  $('rootSelect').value='';
+  zoom=.9;
+  browseFocusId=null;
+  browseOriginSearchId=null;
+  searchHitId=null;
+  $('editForm').hidden=true;
+  $('noSelection').hidden=false;
+  refreshControls();
+  collapsed = new Set(people.filter(p=>childrenOf(p.uid).length).map(p=>p.uid));
+  saveServerState();
+  render();
+});
+
 $('panelToggle').addEventListener('click',()=>$('sidebar').classList.toggle('open'));
 $('printChart').addEventListener('click',()=>window.print());
 function download(name,text,type='text/plain') {
