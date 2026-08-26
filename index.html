@@ -139,7 +139,7 @@ DEMO ONLY — CELEBRITY NAMES ARE FICTIONAL PLACEHOLDERS — NOT ACTUAL CHC EMPL
 <div class="app" id="app">
   <aside class="sidebar" id="sidebar">
     <div class="brand">Org Chart Controls</div>
-    <div class="caption">Browse and filter the organization. Editing requires demo administrator access. Changes save in this browser.</div>
+    <div class="caption">Browse and filter the organization. Editing requires demo administrator access. Changes save to the shared org chart for everyone.</div>
 
     <div class="section">
       <h3>View</h3>
@@ -217,7 +217,7 @@ DEMO ONLY — CELEBRITY NAMES ARE FICTIONAL PLACEHOLDERS — NOT ACTUAL CHC EMPL
         <button type="button" id="exportJson">Export JSON</button>
         <button type="button" id="printChart">Print / PDF</button>
       </div>
-      <p class="small">Demo edits save automatically in this browser and remain after refresh. Other devices will still start with the original demo data.</p>
+      <p class="small">Edits save to the shared org chart. Everyone using this link will load the same saved organization.</p>
     </div>
   </aside>
 
@@ -329,12 +329,19 @@ function updateUndoButton() {
   const btn = $('undoChange');
   if(btn) btn.disabled = undoStack.length === 0;
 }
-function writeCurrentStateToStorage(message='Saved in this browser') {
-  localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify({
-    employees: people,
-    openJobs,
-    updatedAt: new Date().toISOString()
-  }));
+async function writeCurrentStateToServer(message='Saved for everyone') {
+  const response = await fetch('/api/state', {
+    method: 'PUT',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      employees: people,
+      openJobs
+    })
+  });
+  if(!response.ok) {
+    const detail = await response.text().catch(()=> '');
+    throw new Error(detail || `Save failed (${response.status})`);
+  }
   lastSavedSnapshot = cloneState(currentState());
   updateUndoButton();
   setSaveStatus(message);
@@ -346,8 +353,7 @@ const $ = id => document.getElementById(id);
 const norm = v => (v || '').toString().trim().toLowerCase();
 const esc = s => (s || '').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-const SERVER_MODE = false;
-const DEMO_STORAGE_KEY = 'chc-org-chart-celebrity-demo-v1';
+const SERVER_MODE = true;
 const DEMO_ADMIN_PASSWORD = 'DEMO69';
 
 function setSaveStatus(message,isError=false){
@@ -359,43 +365,45 @@ function setSaveStatus(message,isError=false){
 
 async function loadServerState(){
   try{
-    const saved = localStorage.getItem(DEMO_STORAGE_KEY);
-    if(saved){
-      const state = JSON.parse(saved);
-      if(Array.isArray(state.employees)) people = state.employees;
-      if(Array.isArray(state.openJobs)) openJobs = state.openJobs;
+    setSaveStatus('Loading shared org…');
+    const response = await fetch('/api/state', {cache:'no-store'});
+    if(response.status===204) {
       lastSavedSnapshot = cloneState(currentState());
       updateUndoButton();
-      setSaveStatus('Saved demo data loaded');
-      return true;
+      setSaveStatus('Shared org ready');
+      return false;
     }
+    if(!response.ok) throw new Error(`Load failed (${response.status})`);
+    const state = await response.json();
+    if(Array.isArray(state.employees)) people = state.employees;
+    if(Array.isArray(state.openJobs)) openJobs = state.openJobs;
     lastSavedSnapshot = cloneState(currentState());
     updateUndoButton();
-    setSaveStatus('Demo ready');
-    return false;
+    setSaveStatus('Shared org loaded');
+    return true;
   }catch(err){
     console.error(err);
     lastSavedSnapshot = cloneState(currentState());
     updateUndoButton();
-    setSaveStatus('Could not load saved demo data',true);
+    setSaveStatus('Shared save unavailable',true);
     return false;
   }
 }
 
 async function saveServerState(){
   if(readOnly) return;
-  setSaveStatus('Saving…');
+  setSaveStatus('Saving for everyone…');
   try{
     const now = cloneState(currentState());
     if(lastSavedSnapshot && JSON.stringify(now) !== JSON.stringify(lastSavedSnapshot)) {
       undoStack.push(cloneState(lastSavedSnapshot));
       if(undoStack.length > 25) undoStack.shift();
     }
-    writeCurrentStateToStorage('Saved in this browser');
+    await writeCurrentStateToServer('Saved for everyone');
   }catch(err){
     console.error(err);
-    setSaveStatus('Save failed',true);
-    alert('This browser could not save the demo changes.');
+    setSaveStatus('Shared save failed',true);
+    alert('The org chart could not save to the shared server.');
   }
 }
 
@@ -989,7 +997,7 @@ $('zoomReset').addEventListener('click',()=>{
   render();
 });
 
-$('undoChange').addEventListener('click',()=>{
+$('undoChange').addEventListener('click',async()=>{
   if(!undoStack.length) return;
   const prior = undoStack.pop();
   people = cloneState(prior.employees || []);
@@ -1000,7 +1008,7 @@ $('undoChange').addEventListener('click',()=>{
   refreshControls();
   collapsed = new Set(people.filter(p=>childrenOf(p.uid).length).map(p=>p.uid));
   try {
-    writeCurrentStateToStorage('Last change undone');
+    await writeCurrentStateToServer('Last change undone for everyone');
   } catch(err) {
     console.error(err);
     setSaveStatus('Undo save failed',true);
