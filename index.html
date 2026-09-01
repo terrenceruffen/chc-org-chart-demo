@@ -345,6 +345,27 @@ dialog h2{font-size:18px;margin:0 0 10px}
   line-height:1.45;
 }
 
+
+/* ===== Live multi-result employee search ===== */
+.search-wrap{position:relative;min-width:260px;max-width:460px;flex:1}
+.search-wrap .search{width:100%;min-width:0;max-width:none}
+.search-results{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:80;
+  max-height:420px;overflow:auto;background:var(--panel);
+  border:1px solid var(--border);border-radius:12px;
+  box-shadow:0 14px 35px rgba(0,0,0,.18);padding:6px;
+}
+.search-results[hidden]{display:none}
+.search-result{
+  width:100%;text-align:left;display:block;border:0;background:transparent;
+  color:var(--text);border-radius:9px;padding:9px 10px;cursor:pointer;
+}
+.search-result:hover,.search-result.active{background:var(--panel2);outline:1px solid var(--border)}
+.search-result-name{font-weight:850;font-size:13px;line-height:1.25}
+.search-result-title{font-size:11px;margin-top:2px;color:var(--muted)}
+.search-result-meta{font-size:10px;margin-top:3px;color:var(--muted)}
+.search-no-results{padding:10px 11px;font-size:12px;color:var(--muted)}
+
 </style>
 </head>
 <body>
@@ -437,7 +458,10 @@ dialog h2{font-size:18px;margin:0 0 10px}
       <button type="button" class="mobile-panel-btn" id="panelToggle">Filters & Edit</button>
       <button type="button" id="themeToggle" aria-label="Toggle light and dark theme">Dark mode</button>
       <button type="button" id="readOnlyToggle" aria-label="Unlock editing" title="Unlock editing">🔒</button>
-      <input class="search" id="search" placeholder="Search employee, title, department…">
+      <div class="search-wrap" id="searchWrap">
+        <input class="search" id="search" autocomplete="off" placeholder="Search name, title, department, location…">
+        <div class="search-results" id="searchResults" hidden></div>
+      </div>
       <button type="button" id="zoomOut" aria-label="Zoom out">− Zoom</button>
       <span class="zoom-readout" id="zoomReadout">90%</span>
       <button type="button" id="zoomIn" aria-label="Zoom in">+ Zoom</button>
@@ -605,6 +629,8 @@ const ADMIN_PASSWORD = 'CHC2026';
 let openJobs = [{"region": "NorCal", "site": "Any", "hiringManager": "Ami Rowland", "newBackfill": "Backfill", "priorEmployee": "D. Algee III", "title": "Senior VP NorCal Programs", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Posted ", "comments": "Koya", "department": "Open Jobs", "location": "Any", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "Backfill", "priorEmployee": "Jorden Webster", "title": "Residential Manager", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Posted, Needs Update", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "New", "priorEmployee": "n/a", "title": "Manager of Case Management Services", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Pending - JD Review", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "Backfill", "priorEmployee": "Joseph Cole", "title": "Shelter Case Manager", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Posting", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "Backfill", "priorEmployee": "Alexis Perkins", "title": "Shelter Case Manager", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Posting", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "Backfill", "priorEmployee": "Kim Lee", "title": "Case Manager (RRH)", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Pending", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "New", "priorEmployee": "n/a", "title": "Manager of Coordinated Entry (see comment)", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Pending - JD Review", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Full-time", "schedule": "Full-time", "shift": "Swing", "days": "Thursday-Monday", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Part-time ", "schedule": "Part-time ", "shift": "Swing", "days": "Friday, Saturday", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Part-time ", "schedule": "Part-time ", "shift": "Day", "days": "Saturday, Sunday", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Per Diem(s)", "schedule": "Per Diem(s)", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "Backfill", "priorEmployee": "Temp: Kierah Cash Grace", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "Full-time (+ 1 PT)", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "Backfill", "priorEmployee": "Temp: Ferdinand", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "Full-time (+ 1 PT)", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "Backfill", "priorEmployee": "Temp: Michael Torres", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "Full-time (+ 1 PT)", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "Backfill", "priorEmployee": "Temp: James Alsandor", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "Full-time (+ 1 PT)", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Gabrielle Wuiel", "newBackfill": "Backfill", "priorEmployee": "Temp: Aerial Roberson", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "Full-time (+ 1 PT)", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Jazmin", "newBackfill": "New", "priorEmployee": "LOA: Jasmine Ross", "title": "Coordinated Entry Specialist", "employmentClass": "Temp", "schedule": "Full Time", "shift": "", "days": "", "times": "", "status": "?", "comments": "hire a temp in Jasmine Ross' seat OR hire a FT in advance of new contract?", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Jazmin", "newBackfill": "New", "priorEmployee": "n/a", "title": "(Peer) Coordinated Entry Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "", "days": "", "times": "", "status": "?", "comments": "25% have to be Peer ages 25-30, so we need at list one.", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Jazmin", "newBackfill": "New", "priorEmployee": "n/a", "title": "(Peer) Coordinated Entry Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "", "days": "", "times": "", "status": "?", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Krystalyn", "newBackfill": "Backfill", "priorEmployee": "Shawn Robinson", "title": "Employment Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Posted", "comments": "Meet w/ Krystalyn to provide resume screening and interview support", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Oakland", "hiringManager": "Mikal", "newBackfill": "Backfill", "priorEmployee": "Roxanna (Temp: Shantila Williams)", "title": "Cook", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Sunday - Thursday", "times": "10am - 6:30pm", "status": "", "comments": "", "department": "Open Jobs", "location": "Oakland", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Los Angeles", "hiringManager": "Stacey", "newBackfill": "Christenson", "priorEmployee": "LOA: Tomi E. (Temp: Starlisa Brown)", "title": "Cook", "employmentClass": "Temp", "schedule": "", "shift": "", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Los Angeles", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Santa Clara", "hiringManager": "Krystalyn", "newBackfill": "New", "priorEmployee": "n/a", "title": "Employment Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "Posted", "comments": "Meet w/ Krystalyn to provide resume screening and interview support", "department": "Open Jobs", "location": "Santa Clara", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Santa Clara", "hiringManager": "Najma", "newBackfill": "Backfill", "priorEmployee": "Robert", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Tuesday - Saturday", "times": "7:30-4pm", "status": "Posted", "comments": "", "department": "Open Jobs", "location": "Santa Clara", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Santa Clara", "hiringManager": "Najma", "newBackfill": "Backfill", "priorEmployee": "Jorge Luis", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Sunday - Thursday", "times": "7:30-4pm", "status": "Posted", "comments": "target start date: August 24th; backfill Luis conversion to PD", "department": "Open Jobs", "location": "Santa Clara", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Santa Clara", "hiringManager": "Najma", "newBackfill": "Backfill", "priorEmployee": "Bernice Brown", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Overnight", "days": "Sunday - Thursday", "times": "11:30pm - 8am", "status": "Hiring in Progress", "comments": "starts next week: Vanessa Botello", "department": "Open Jobs", "location": "Santa Clara", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Cori", "newBackfill": "New", "priorEmployee": "n/a", "title": "Residential Manager", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Sun-Thurs / Tues-Sat", "times": "7am - 4pm OR 10am - 7pm", "status": "pending JD review", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Cori", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Swing", "days": "Wednesday - Sunday", "times": "3:30pm - 12am", "status": "", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Cori", "newBackfill": "New", "priorEmployee": "Temp: Jennifer Harway", "title": "Youth Engagement", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day Shift", "days": "Tuesday - Saturday", "times": "7:30am - 4pm", "status": "Hiring in Progress", "comments": "Jen Harway; hired to add extra capacity to help ensure two people per shift", "department": "Open Jobs", "location": "Hayward", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Cori", "newBackfill": "Backfill", "priorEmployee": "LOA: Shanae", "title": "Youth Engagement Specialist", "employmentClass": "Temp", "schedule": "Part-time ", "shift": "Overnight", "days": "Tuesday, Thursday, Fridays", "times": "11:30pm - 8am", "status": "", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Cori", "newBackfill": "Backfill", "priorEmployee": "LOA: Keesha", "title": "Youth Engagement Specialist", "employmentClass": "Temp", "schedule": "Full Time", "shift": "Day", "days": "Wed- Sun OR Thurs - Mon", "times": "7:30am - 4pm", "status": "", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Cori", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Wed - Sun OR Thurs-Monday", "times": "7:30am - 4pm", "status": "wish list", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Cori", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Swing", "days": "Wed - Sun OR Thurs-Monday", "times": "3:30pm - 12am", "status": "wish list", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "NorCal", "site": "Hayward", "hiringManager": "Cori", "newBackfill": "New", "priorEmployee": "n/a", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Part-time ", "shift": "Overnight", "days": "Monday, Wednesday, Friday", "times": "11:30pm - 8am", "status": "wish list", "comments": "", "department": "Open Jobs", "location": "Hayward", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "HDT", "hiringManager": "Darrell Marrow", "newBackfill": "Backfill", "priorEmployee": "(Temp: Raymond Pena)", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Overnight", "days": "??", "times": "", "status": "Posted", "comments": "Interviews in Progress", "department": "Open Jobs", "location": "HDT", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "HDT", "hiringManager": "Darrell Marrow", "newBackfill": "Backfill", "priorEmployee": "(Temp: Kylie ", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full-Time", "shift": "Overnight", "days": "??", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "HDT", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "HDT", "hiringManager": "Darrell Marrow", "newBackfill": "Backfill", "priorEmployee": "(Temp: Rodney Harris)", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full-Time", "shift": "Overnight", "days": "??", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "HDT", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "HDT", "hiringManager": "Lailanie", "newBackfill": "Backfill", "priorEmployee": "Jesus Siordia", "title": "Director of Community Housing & Alumni Relations", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Mon - Friday", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "HDT", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Ryan Harrell", "newBackfill": "Backfill", "priorEmployee": "Yesennia", "title": "Residential Manager", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day / Swing", "days": "Tuesday-Saturday", "times": "Tues-Thurs (7:30AM-4PM) Fri & Sat (1pm-9pm)", "status": "Archived will repost", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Ryan Harrell", "newBackfill": "Backfill", "priorEmployee": "Nelson Aguilar", "title": "Residential Manager", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Overnight", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Ryan Harrell", "newBackfill": "Backfill", "priorEmployee": "", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "", "shift": "", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Ryan Harrell", "newBackfill": "Backfill", "priorEmployee": "", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "", "shift": "", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Ryan Harrell", "newBackfill": "Backfill", "priorEmployee": "", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "", "shift": "", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Ryan Harrell", "newBackfill": "Backfill", "priorEmployee": "Temp: Diana Gonzalez", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "Regular", "schedule": "??", "shift": "??", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Ryan Harrell", "newBackfill": "Backfill", "priorEmployee": "Temp: Nataniel Duffy", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "Regular", "schedule": "??", "shift": "??", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Ryan Harrell", "newBackfill": "Backfill", "priorEmployee": "Temp: Name", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Ryan Harrell", "newBackfill": "Backfill", "priorEmployee": "Temp: Name", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Ryan Harrell", "newBackfill": "Backfill", "priorEmployee": "Temp: Name", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Ryan Harrell", "newBackfill": "Backfill", "priorEmployee": "Temp: Name", "title": "Youth Engagement Specialist Filled by Temps", "employmentClass": "", "schedule": "", "shift": "Various", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Beverly Meza", "newBackfill": "?", "priorEmployee": "", "title": "Case Manager", "employmentClass": "Regular ", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Beverly Meza", "newBackfill": "?", "priorEmployee": "", "title": "HT Case Manager", "employmentClass": "Regular ", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Beverly Meza", "newBackfill": "", "priorEmployee": "LOA: Veronica Barragan", "title": "Case Manager", "employmentClass": "Temp", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Beverly Meza", "newBackfill": "", "priorEmployee": "LOA: Shaka Brown", "title": "Case Manager", "employmentClass": "Temp", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Stacey", "newBackfill": "New", "priorEmployee": "n/a", "title": "Housekeeper", "employmentClass": "Regular ", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Stacey", "newBackfill": "New", "priorEmployee": "n/a", "title": "Maintenance Technician", "employmentClass": "Regular ", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Yelena", "newBackfill": "New", "priorEmployee": "n/a", "title": "Career Coach", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Anaheim", "hiringManager": "Tanesha", "newBackfill": "Backfill", "priorEmployee": "Gibran Godoy", "title": "Youth Engagement Specialist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "", "times": "", "status": "", "comments": "Gibran backfilled Nishlee, so his role needs to be backfilled", "department": "Open Jobs", "location": "Anaheim", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Anaheim", "hiringManager": "Tanesha", "newBackfill": "Backfill", "priorEmployee": "Daniel Bisuano", "title": "Youth Engagement Specialist", "employmentClass": "Regular ", "schedule": "Full Time", "shift": "Overnight", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Anaheim", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Anaheim", "hiringManager": "Tanesha", "newBackfill": "Backfill", "priorEmployee": "", "title": "Youth Engagement Specialist", "employmentClass": "", "schedule": "", "shift": "Mae", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Anaheim", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Anaheim", "hiringManager": "Tanesha", "newBackfill": "Backfill", "priorEmployee": "", "title": "Youth Engagement Specialist", "employmentClass": "", "schedule": "", "shift": "Mae", "days": "", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Anaheim", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Yelena", "newBackfill": "Backfill", "priorEmployee": "Temp: Jonathan Brown", "title": "Youth Outreach Advocate", "employmentClass": "Temp", "schedule": "   ", "shift": "Day", "days": "", "times": "", "status": "", "comments": "Filling with temps until we have more infor about new/extended contract", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Yelena", "newBackfill": "New", "priorEmployee": "n/a", "title": "Career Coach", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Mon-Friday", "times": "8:45am - 5:15pm", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}, {"region": "SoCal", "site": "Hollywood", "hiringManager": "Tiffany / Nancy", "newBackfill": "New", "priorEmployee": "n/a", "title": "HR Generalist", "employmentClass": "Regular", "schedule": "Full Time", "shift": "Day", "days": "Mon-Friday", "times": "", "status": "", "comments": "", "department": "Open Jobs", "location": "Hollywood", "managerId": null, "source": "2026.08.19 - CHC Staff List - Open Positions"}];
 let searchMode = false;
 let searchHitId = null;
+let selectedSearchResultId = null;
+let searchResultIndex = -1;
 
 const $ = id => document.getElementById(id);
 const norm = v => (v || '').toString().trim().toLowerCase();
@@ -710,6 +736,98 @@ function uniq(field) {
   )].sort((a,b)=>a.localeCompare(b));
 }
 function byId(id) { return people.find(p=>p.uid===id); }
+
+function employeeSearchResults(rawQuery) {
+  const q=norm(rawQuery);
+  if(!q) return [];
+  const tokens=q.split(/\s+/).filter(Boolean);
+
+  return people
+    .filter(p=>norm(p.status)!=='terminated')
+    .map(p=>{
+      const name=norm(p.name);
+      const title=norm(p.title);
+      const department=norm(p.department);
+      const location=norm(p.location);
+      const email=norm(p.email);
+      const haystack=[name,title,department,location,email].join(' ');
+      if(!tokens.every(t=>haystack.includes(t))) return null;
+
+      let score=0;
+      if(name===q) score+=1000;
+      if(name.startsWith(q)) score+=500;
+      if(name.includes(q)) score+=250;
+      if(tokens.every(t=>name.includes(t))) score+=150;
+      if(title.includes(q)) score+=50;
+      if(department.includes(q)) score+=30;
+      if(location.includes(q)) score+=20;
+      if(email.includes(q)) score+=10;
+      return {p,score};
+    })
+    .filter(Boolean)
+    .sort((a,b)=>b.score-a.score || a.p.name.localeCompare(b.p.name))
+    .map(x=>x.p);
+}
+
+function closeSearchResults() {
+  $('searchResults').hidden=true;
+  $('searchResults').innerHTML='';
+  searchResultIndex=-1;
+}
+
+function showSearchResults() {
+  const box=$('searchResults');
+  const results=employeeSearchResults($('search').value);
+  const q=norm($('search').value);
+
+  box.innerHTML='';
+  searchResultIndex=-1;
+
+  if(!q) {
+    closeSearchResults();
+    return;
+  }
+
+  if(!results.length) {
+    box.innerHTML='<div class="search-no-results">No matching employees</div>';
+    box.hidden=false;
+    return;
+  }
+
+  results.forEach(p=>{
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='search-result';
+    btn.dataset.searchEmployee=p.uid;
+    btn.innerHTML=`
+      <div class="search-result-name">${esc(p.name)}</div>
+      <div class="search-result-title">${esc(p.title||'')}</div>
+      <div class="search-result-meta">${esc([p.department,p.location].filter(Boolean).join(' • '))}</div>
+    `;
+    box.appendChild(btn);
+  });
+  box.hidden=false;
+}
+
+function chooseSearchResult(uid) {
+  const p=byId(uid);
+  if(!p) return;
+
+  selectedSearchResultId=uid;
+  searchHitId=uid;
+  browseFocusId=uid;
+  browseOriginSearchId=uid;
+
+  collapsed = new Set(people.filter(person=>childrenOf(person.uid).length).map(person=>person.uid));
+  collapsed.delete(uid);
+  childrenOf(uid).forEach(c=>{
+    if(childrenOf(c.uid).length) collapsed.add(c.uid);
+  });
+
+  closeSearchResults();
+  render();
+}
+
 
 function jobKey(j,index=-1) {
   if(j.id) return j.id;
@@ -1005,28 +1123,17 @@ function render() {
   }
 
   const q=norm($('search').value);
-  searchHitId = null;
 
-  if(q) {
-    const exact = people.find(p=>norm(p.status)!=='terminated' && norm(p.name)===q);
-    const hit = exact || people.find(p=>norm(p.status)!=='terminated' && [p.name,p.title,p.department,p.email].some(v=>norm(v).includes(q)));
-    if(hit) {
-      const searchedId = hit.uid;
-      if(!browseFocusId || browseOriginSearchId !== searchedId) {
-        browseFocusId = searchedId;
-        browseOriginSearchId = searchedId;
-        collapsed.delete(browseFocusId);
-        childrenOf(browseFocusId).forEach(c=>{
-          if(childrenOf(c.uid).length) collapsed.add(c.uid);
-        });
-      }
-      // searchHitId represents the CURRENT browsing focus while the typed search remains the origin.
-      searchHitId = browseFocusId;
-    }
-  } else {
+  // Typing shows matches, but does not automatically choose the first person.
+  if(!q) {
     searchHitId = null;
+    selectedSearchResultId = null;
     browseFocusId = null;
     browseOriginSearchId = null;
+  } else if(selectedSearchResultId && byId(selectedSearchResultId)) {
+    searchHitId = browseFocusId || selectedSearchResultId;
+  } else {
+    searchHitId = null;
   }
   tree.classList.toggle('search-mode', !!searchHitId);
 
@@ -1263,20 +1370,70 @@ $('addForm').addEventListener('submit',e=>{
 });
 ['deptFilter','statusFilter','locFilter','sortBy','rootSelect'].forEach(id=>$(id).addEventListener('change',render));
 $('search').addEventListener('input',()=>{
+  selectedSearchResultId=null;
+  searchHitId=null;
+  browseFocusId=null;
+  browseOriginSearchId=null;
+
   const q=norm($('search').value);
-  if(q) {
-    // Keep all branches collapsed; render() opens only the ancestor path.
-    collapsed = new Set(people.filter(p=>childrenOf(p.uid).length).map(p=>p.uid));
-  } else {
+  if(!q) {
     const ceo=topCEO();
     collapsed = new Set(people.filter(p=>childrenOf(p.uid).length).map(p=>p.uid));
     if(ceo) collapsed.add(ceo.uid);
+    closeSearchResults();
+    render();
+    return;
   }
-  render();
+  showSearchResults();
+});
+
+$('search').addEventListener('focus',()=>{
+  if(norm($('search').value) && !selectedSearchResultId) showSearchResults();
+});
+
+$('searchResults').addEventListener('click',e=>{
+  const result=e.target.closest('[data-search-employee]');
+  if(!result) return;
+  chooseSearchResult(result.dataset.searchEmployee);
+});
+
+$('search').addEventListener('keydown',e=>{
+  const box=$('searchResults');
+  if(box.hidden) {
+    if(e.key==='ArrowDown' && norm($('search').value)) showSearchResults();
+    else return;
+  }
+  const items=[...box.querySelectorAll('.search-result')];
+  if(!items.length) {
+    if(e.key==='Escape') closeSearchResults();
+    return;
+  }
+  if(e.key==='ArrowDown') {
+    e.preventDefault();
+    searchResultIndex=Math.min(searchResultIndex+1,items.length-1);
+  } else if(e.key==='ArrowUp') {
+    e.preventDefault();
+    searchResultIndex=Math.max(searchResultIndex-1,0);
+  } else if(e.key==='Enter' && searchResultIndex>=0) {
+    e.preventDefault();
+    chooseSearchResult(items[searchResultIndex].dataset.searchEmployee);
+    return;
+  } else if(e.key==='Escape') {
+    closeSearchResults();
+    return;
+  } else return;
+
+  items.forEach((item,i)=>item.classList.toggle('active',i===searchResultIndex));
+  items[searchResultIndex]?.scrollIntoView({block:'nearest'});
+});
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#searchWrap')) closeSearchResults();
 });
 $('clearFilters').addEventListener('click',()=>{
   $('search').value='';$('deptFilter').value='';$('statusFilter').value='';$('locFilter').value='';
   $('rootSelect').value='';
+  selectedSearchResultId=null; searchHitId=null; browseFocusId=null; browseOriginSearchId=null; closeSearchResults();
   collapsed = new Set(people.filter(p=>childrenOf(p.uid).length).map(p=>p.uid));
   render();
 });
