@@ -366,6 +366,152 @@ dialog h2{font-size:18px;margin:0 0 10px}
 .search-result-meta{font-size:10px;margin-top:3px;color:var(--muted)}
 .search-no-results{padding:10px 11px;font-size:12px;color:var(--muted)}
 
+
+/* Progressive tier navigation */
+.card.nav-active{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);box-shadow:0 10px 28px rgba(0,0,0,.16)}
+.tier-nav{display:flex;justify-content:center;gap:7px;margin-top:9px;flex-wrap:wrap}
+.tier-nav button{min-height:28px;padding:5px 9px;font-size:10px;border-radius:999px;background:var(--panel2)}
+.tier-enter{
+  --tier-delay:0ms;
+  animation:tierReveal .46s cubic-bezier(.16,1,.3,1) both;
+  animation-delay:var(--tier-delay);
+  transform-origin:50% 0%;
+}
+.tier-enter.reveal-up{animation-name:tierRevealUp}
+.tier-enter.reveal-down{animation-name:tierRevealDown}
+.tier-enter .card{transition:transform .22s ease,box-shadow .22s ease,outline-color .22s ease}
+.tier-enter .card:hover{transform:translateY(-2px)}
+.card.nav-active{animation:focusPulse .55s cubic-bezier(.2,.8,.2,1)}
+.node-wrap.tier-enter > .children::before,
+.node-wrap.tier-enter > .children > .child::before,
+.node-wrap.tier-enter > .children > .child::after{
+  animation:lineDraw .38s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay:calc(var(--tier-delay) + 90ms);
+  transform-origin:top center;
+}
+@keyframes tierReveal{
+  0%{opacity:0;transform:translateY(14px) scale(.97);filter:blur(2px)}
+  70%{opacity:1;transform:translateY(-2px) scale(1.006);filter:blur(0)}
+  100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+@keyframes tierRevealUp{
+  0%{opacity:0;transform:translateY(24px) scale(.965);filter:blur(2px)}
+  72%{opacity:1;transform:translateY(-3px) scale(1.008);filter:blur(0)}
+  100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+@keyframes tierRevealDown{
+  0%{opacity:0;transform:translateY(-18px) scale(.965);filter:blur(2px)}
+  72%{opacity:1;transform:translateY(3px) scale(1.008);filter:blur(0)}
+  100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+@keyframes lineDraw{
+  from{opacity:0;transform:scaleY(0)}
+  to{opacity:1;transform:scaleY(1)}
+}
+@keyframes focusPulse{
+  0%{transform:scale(.985);box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 22%,transparent)}
+  55%{transform:scale(1.012);box-shadow:0 0 0 12px color-mix(in srgb,var(--accent) 0%,transparent)}
+  100%{transform:scale(1);box-shadow:0 10px 28px rgba(0,0,0,.16)}
+}
+@media (prefers-reduced-motion:reduce){
+  .tier-enter,.card.nav-active,
+  .node-wrap.tier-enter > .children::before,
+  .node-wrap.tier-enter > .children > .child::before,
+  .node-wrap.tier-enter > .children > .child::after{animation:none}
+}
+
+
+.tier-nav button{
+  transition:transform .18s ease,box-shadow .18s ease,background .18s ease;
+}
+.tier-nav button:hover{
+  transform:translateY(-2px) scale(1.025);
+  box-shadow:0 7px 18px rgba(0,0,0,.14);
+}
+.tier-nav button:active{
+  transform:translateY(0) scale(.97);
+}
+.name{
+  cursor:pointer;
+}
+
+
+/* ===== Center the org chart presentation ===== */
+#tree{
+  width:max-content;
+  min-width:100%;
+  margin-inline:auto;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  transform-origin:top center !important;
+}
+#chartViewport,
+.chart-viewport,
+.tree-wrap,
+.org-wrap{
+  text-align:center;
+}
+.node-wrap{
+  margin-left:auto;
+  margin-right:auto;
+}
+
+
+.tier-nav button{
+  width:34px;
+  min-width:34px;
+  height:34px;
+  padding:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:17px;
+  line-height:1;
+}
+
+
+.card.selected{
+  outline:3px solid color-mix(in srgb,var(--accent) 72%,transparent);
+  box-shadow:0 10px 28px rgba(0,0,0,.18),0 0 0 6px color-mix(in srgb,var(--accent) 10%,transparent);
+}
+
+
+/* Animations intentionally disabled */
+.tier-enter,
+.tier-enter.reveal-up,
+.tier-enter.reveal-down,
+.card.nav-active,
+.node-wrap.tier-enter > .children::before,
+.node-wrap.tier-enter > .children > .child::before,
+.node-wrap.tier-enter > .children > .child::after{
+  animation:none !important;
+  transition:none !important;
+  filter:none !important;
+}
+.tier-nav button,
+.tier-nav button:hover,
+.tier-nav button:active,
+.tier-enter .card,
+.tier-enter .card:hover{
+  transition:none !important;
+  transform:none !important;
+}
+
+
+.branch-toggle.icon-only{
+  width:34px;
+  min-width:34px;
+  height:34px;
+  padding:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-inline:auto;
+  font-size:17px;
+  line-height:1;
+}
+
 </style>
 </head>
 <body>
@@ -631,6 +777,9 @@ let searchMode = false;
 let searchHitId = null;
 let selectedSearchResultId = null;
 let searchResultIndex = -1;
+let progressiveFocusId=null;
+let progressiveVisible=new Set();
+let progressiveRevealDirection='down';
 
 const $ = id => document.getElementById(id);
 const norm = v => (v || '').toString().trim().toLowerCase();
@@ -817,6 +966,9 @@ function chooseSearchResult(uid) {
   searchHitId=uid;
   browseFocusId=uid;
   browseOriginSearchId=uid;
+  progressiveFocusId=uid;
+  progressiveVisible=new Set([uid]);
+  progressiveRevealDirection='down';
 
   collapsed = new Set(people.filter(person=>childrenOf(person.uid).length).map(person=>person.uid));
   collapsed.delete(uid);
@@ -853,6 +1005,94 @@ function resolveJobManagerId(j) {
   }
   return '';
 }
+
+
+function progressiveTopVisible(){
+  if(!progressiveFocusId || !byId(progressiveFocusId)) return null;
+  let p=byId(progressiveFocusId);
+  const seen=new Set();
+
+  // Walk upward only while that manager has been revealed.
+  while(p?.managerId && progressiveVisible.has(p.managerId) && !seen.has(p.uid)){
+    seen.add(p.uid);
+    const parent=byId(p.managerId);
+    if(!parent) break;
+    p=parent;
+  }
+  return p;
+}
+
+function progressiveTreeNode(p,depth=0,siblingIndex=0){
+  const temp=document.createElement('div');
+  temp.innerHTML=cardHtml(p,depth);
+  const wrap=temp.firstElementChild;
+  wrap.classList.add('tier-enter');
+  wrap.classList.add(progressiveRevealDirection==='up'?'reveal-up':'reveal-down');
+  wrap.style.setProperty('--tier-delay',`${Math.min(depth*45+siblingIndex*65,420)}ms`);
+
+  const card=wrap.querySelector(':scope > .card');
+  if(card){
+    card.classList.toggle('nav-active',p.uid===progressiveFocusId);
+    card.querySelector('.toggle')?.remove();
+
+    const nav=document.createElement('div');
+    nav.className='tier-nav';
+
+    if(p.managerId && byId(p.managerId) && !progressiveVisible.has(p.managerId)){
+      const up=document.createElement('button');
+      up.type='button';
+      up.dataset.tierNav='up';
+      up.dataset.personId=p.uid;
+      up.textContent='↑'; up.title='Direct Manager'; up.setAttribute('aria-label','Direct Manager');
+      nav.appendChild(up);
+    }
+
+    const hiddenReports=childrenOf(p.uid).filter(k=>!progressiveVisible.has(k.uid));
+    if(hiddenReports.length){
+      const down=document.createElement('button');
+      down.type='button';
+      down.dataset.tierNav='down';
+      down.dataset.personId=p.uid;
+      down.textContent='↓'; down.title='Direct Reports'; down.setAttribute('aria-label','Direct Reports');
+      nav.appendChild(down);
+    }
+
+    if(nav.children.length) card.appendChild(nav);
+
+    card.addEventListener('click',e=>{
+      if(e.target.closest('.tier-nav')) return;
+      selectedId=p.uid;
+      render();
+    });
+
+    card.addEventListener('dblclick',e=>{
+      if(e.target.closest('.tier-nav')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      selectedId=p.uid;
+      progressiveFocusId=p.uid;
+      progressiveVisible=new Set([p.uid]);
+      progressiveRevealDirection='down';
+      render();
+    });
+  }
+
+  const shownKids=childrenOf(p.uid).filter(k=>progressiveVisible.has(k.uid));
+  if(shownKids.length){
+    const holder=document.createElement('div');
+    holder.className='children';
+    shownKids.forEach((k,index)=>{
+      const child=document.createElement('div');
+      child.className='child';
+      child.appendChild(progressiveTreeNode(k,depth+1,index));
+      holder.appendChild(child);
+    });
+    wrap.appendChild(holder);
+  }
+
+  return wrap;
+}
+
 function openFillJob(jobKeyValue) {
   if(readOnly) {
     $('unlockError').textContent='';
@@ -966,11 +1206,9 @@ function cardHtml(p, depth) {
     isDescendantOf(p.uid, searchHitId)
   );
   const visible=searchContext ? true : matchesFilter(p);
-  const initials=(p.name||'?').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase();
   return `<div class="node-wrap depth-${Math.min(depth,6)}" data-id="${esc(p.uid)}">
     <div class="card ${p.uid===selectedId?'selected':''} ${visible?'':'filtered'} ${p.uid===searchHitId?'search-hit':''} ${searchContext?'search-context':''} ${(searchHitId && p.managerId===browseFocusId)?'browse-choice':''}" tabindex="0" role="button" aria-label="Select ${esc(p.name)}">
       <div class="card-main">
-        <div class="avatar" aria-hidden="true">${esc(initials)}</div>
         <div class="card-copy">
           <div class="name">${esc(p.name)}</div>
           <div class="title">${esc(p.title || 'No title')}</div>
@@ -978,13 +1216,14 @@ function cardHtml(p, depth) {
         </div>
       </div>
       ${p.status && p.status!=='Active'?`<span class="badge">${esc(p.status)}</span>`:''}
-      ${kids.length?`<div class="toggle"><button type="button" class="branch-toggle" aria-label="${collapsed.has(p.uid)?'Expand':'Collapse'} ${esc(p.name)}"><span>${kids.length} direct report${kids.length===1?'':'s'}</span><span>${collapsed.has(p.uid)?'＋':'−'}</span></button></div>`:''}
+      ${kids.length?`<div class="toggle"><button type="button" class="branch-toggle icon-only" title="${collapsed.has(p.uid)?'Expand':'Collapse'} direct reports" aria-label="${collapsed.has(p.uid)?'Expand':'Collapse'} direct reports for ${esc(p.name)}"><span>${collapsed.has(p.uid)?'＋':'−'}</span></button></div>`:''}
     </div>
   </div>`;
 }
 function renderNode(p, depth=0) {
   const node=document.createElement('div');
-  node.className='node-wrap depth-'+Math.min(depth,6);
+  node.className='node-wrap depth-'+Math.min(depth,6)+' tier-enter reveal-down';
+  node.style.setProperty('--tier-delay',`${Math.min(depth*45,280)}ms`);
   node.dataset.id=p.uid;
   node.innerHTML=cardHtml(p,depth).replace(/^<div class="node-wrap[^>]*>|<\/div>$/g,'');
   const card=node.querySelector('.card');
@@ -992,20 +1231,51 @@ function renderNode(p, depth=0) {
   card.addEventListener('click',e=>{
     if(childrenOf(p.uid).length && e.target.closest('.branch-toggle')) {
       e.stopPropagation();
+      progressiveRevealDirection='down';
       collapsed.has(p.uid)?collapsed.delete(p.uid):collapsed.add(p.uid);
-      render(); return;
-    }
-    if(searchHitId && p.uid !== browseFocusId && p.managerId===browseFocusId) {
-      browseFocusId = p.uid;
-      searchHitId = browseFocusId;
-      collapsed.delete(browseFocusId);
-      childrenOf(browseFocusId).forEach(c=>{ if(childrenOf(c.uid).length) collapsed.add(c.uid); });
       render();
       return;
     }
-    if(!readOnly) choose();
+
+    // Single click only highlights/selects the employee.
+    selectedId=p.uid;
+    progressiveFocusId=null;
+    progressiveVisible=new Set();
+    searchHitId=null;
+    browseFocusId=null;
+    browseOriginSearchId=null;
+    selectedSearchResultId=null;
+    render();
   });
-  card.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ') && !readOnly){e.preventDefault();choose();}});
+
+  // Double click intentionally focuses the chart down to this one employee.
+  card.addEventListener('dblclick',e=>{
+    if(e.target.closest('.branch-toggle')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    selectedId=p.uid;
+    progressiveFocusId=p.uid;
+    progressiveVisible=new Set([p.uid]);
+    progressiveRevealDirection='down';
+    searchHitId=null;
+    browseFocusId=null;
+    browseOriginSearchId=null;
+    selectedSearchResultId=null;
+    render();
+  });
+  card.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){
+      e.preventDefault();
+      selectedId=p.uid;
+      progressiveFocusId=null;
+      progressiveVisible=new Set();
+      searchHitId=null;
+      browseFocusId=null;
+      browseOriginSearchId=null;
+      selectedSearchResultId=null;
+      render();
+    }
+  });
   const kids=sortKids(childrenOf(p.uid));
   const activeFilters=$('deptFilter').value||$('statusFilter').value||$('locFilter').value;
   const chain = searchHitId ? ancestorIds(searchHitId) : new Set();
@@ -1154,6 +1424,13 @@ function render() {
   if(activeFilters && !searchHitId) rs=rs.filter(p=>matchesFilter(p)||hasMatchingDescendant(p.uid));
 
   if(!rs.length) tree.innerHTML='<div class="empty">No employees match the current filters.</div>';
+  else if(progressiveFocusId && byId(progressiveFocusId)){
+    const top=progressiveTopVisible();
+    if(top) tree.appendChild(progressiveTreeNode(top,0));
+    requestAnimationFrame(()=>{
+      tree.querySelector(`.node-wrap[data-id="${CSS.escape(progressiveFocusId)}"]`)?.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});
+    });
+  }
   else rs.forEach(p=>tree.appendChild(renderNode(p,0)));
 
   // Open positions appear once beneath their manager when the Open Jobs toggle is ON.
@@ -1176,7 +1453,6 @@ function render() {
     child.innerHTML=`<div class="node-wrap">
       <div class="card vacancy open-job">
         <div class="card-main">
-          <div class="avatar">○</div>
           <div class="card-copy">
             <div class="name">${esc(j.title||'Open Position')}</div>
             <div class="title">Open Position</div>
@@ -1374,12 +1650,14 @@ $('search').addEventListener('input',()=>{
   searchHitId=null;
   browseFocusId=null;
   browseOriginSearchId=null;
+  progressiveFocusId=null;
+  progressiveVisible=new Set();
 
   const q=norm($('search').value);
   if(!q) {
     const ceo=topCEO();
     collapsed = new Set(people.filter(p=>childrenOf(p.uid).length).map(p=>p.uid));
-    if(ceo) collapsed.add(ceo.uid);
+    if(ceo) collapsed.delete(ceo.uid);
     closeSearchResults();
     render();
     return;
@@ -1433,7 +1711,7 @@ document.addEventListener('click',e=>{
 $('clearFilters').addEventListener('click',()=>{
   $('search').value='';$('deptFilter').value='';$('statusFilter').value='';$('locFilter').value='';
   $('rootSelect').value='';
-  selectedSearchResultId=null; searchHitId=null; browseFocusId=null; browseOriginSearchId=null; closeSearchResults();
+  selectedSearchResultId=null; searchHitId=null; browseFocusId=null; browseOriginSearchId=null; progressiveFocusId=null; progressiveVisible=new Set(); closeSearchResults();
   collapsed = new Set(people.filter(p=>childrenOf(p.uid).length).map(p=>p.uid));
   render();
 });
@@ -1909,6 +2187,33 @@ $('jobForm').addEventListener('submit',e=>{
 
 
 document.addEventListener('click',e=>{
+  const nav=e.target.closest('[data-tier-nav]');
+  if(!nav) return;
+  e.preventDefault();
+  e.stopPropagation();
+
+  const personId=nav.dataset.personId;
+  const person=byId(personId);
+  if(!person) return;
+
+  progressiveFocusId=personId;
+
+  if(nav.dataset.tierNav==='up'){
+    if(person.managerId && byId(person.managerId)){
+      progressiveRevealDirection='up';
+      progressiveVisible.add(person.managerId);
+      progressiveFocusId=person.managerId;
+    }
+  } else {
+    progressiveRevealDirection='down';
+    childrenOf(personId).forEach(child=>progressiveVisible.add(child.uid));
+    progressiveFocusId=personId;
+  }
+
+  render();
+});
+
+document.addEventListener('click',e=>{
   const btn=e.target.closest('[data-fill-job]');
   if(!btn) return;
   e.preventDefault();
@@ -2069,6 +2374,8 @@ applyTheme();
   await loadSharedData();
   refreshControls();
   collapsed = new Set(people.filter(p=>childrenOf(p.uid).length).map(p=>p.uid));
+  const ceo=topCEO();
+  if(ceo) collapsed.delete(ceo.uid); // Start with Executive Team visible.
   render();
 })();
 })();
